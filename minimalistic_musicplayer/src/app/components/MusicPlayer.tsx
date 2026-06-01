@@ -70,15 +70,17 @@ export function MusicPlayer() {
     });
   };
 
-
-
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (progressRef.current) {
-      const rect = progressRef.current.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const percentage = clickX / rect.width;
-      setCurrentTime(Math.floor(percentage * duration));
-    }
+    const audio = audioRef.current;
+    if (!audio || !progressRef.current || duration <= 0) return;
+
+    const rect = progressRef.current.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const nextTime = Math.floor(percentage * duration);
+
+    audio.currentTime = nextTime;
+    setCurrentTime(nextTime);
   };
 
   const formatTime = (seconds: number) => {
