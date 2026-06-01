@@ -167,7 +167,13 @@ export function MusicPlayer() {
         onPause={() => setIsPlaying(false)}
         src={currentTrack.src}
         preload="metadata"
-        onLoadedMetadata={() => setDuration(Math.floor(audioRef.current?.duration ?? 0))}
+        onLoadedMetadata={() => {
+          const audio = audioRef.current;
+          if (!audio) return;
+
+          audio.volume = volume / 100;
+          setDuration(Math.floor(audio.duration ?? 0));
+        }}
         onTimeUpdate={() => setCurrentTime(Math.floor(audioRef.current?.currentTime ?? 0))}
         onEnded={() => {
           changeTrack(1);
