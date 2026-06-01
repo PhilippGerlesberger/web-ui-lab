@@ -45,6 +45,33 @@ export function MusicPlayer() {
     }
   };
 
+  const changeTrack = async (direction: -1 | 1) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const wasPlaying = isPlaying;
+
+    if (isPlaying) {
+      audio.pause();
+    }
+
+    setCurrentTrackIndex(
+      (prev) => (prev + direction + tracks.length) % tracks.length,
+    );
+
+    if (!wasPlaying) return;
+
+    queueMicrotask(async () => {
+      try {
+        await audio.play();
+      } catch (error) {
+        console.error("Playback could not be resumed:", error);
+      }
+    });
+  };
+
+
+
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (progressRef.current) {
       const rect = progressRef.current.getBoundingClientRect();
@@ -67,9 +94,7 @@ export function MusicPlayer() {
       <div className="flex items-center justify-center gap-5 mb-8">
         <button
           type="button"
-          onClick={() =>
-            setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
-          }
+          onClick={() => changeTrack(-1)}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-200 text-neutral-700 transition-all hover:bg-neutral-300 active:scale-95"
           aria-label="Previous track"
         >
@@ -91,7 +116,7 @@ export function MusicPlayer() {
 
         <button
           type="button"
-          onClick={() => setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)}
+          onClick={() => changeTrack(1)}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-200 text-neutral-700 transition-all hover:bg-neutral-300 active:scale-95"
           aria-label="Next track"
         >
@@ -154,8 +179,7 @@ export function MusicPlayer() {
         onLoadedMetadata={() => setDuration(Math.floor(audioRef.current?.duration ?? 0))}
         onTimeUpdate={() => setCurrentTime(Math.floor(audioRef.current?.currentTime ?? 0))}
         onEnded={() => {
-          setIsPlaying(false);
-          setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
+          changeTrack(1);
         }}
       />
     </div>
