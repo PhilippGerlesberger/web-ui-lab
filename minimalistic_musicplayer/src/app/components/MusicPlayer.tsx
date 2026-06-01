@@ -1,33 +1,16 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Play, Pause, Volume2, SkipBack, SkipForward } from "lucide-react";
 import { tracks } from "../data/tracks";
 
 export function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0); // 4:05 als Beispiel
+  const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(70);
   const progressRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const currentTrack = tracks[currentTrackIndex];
-
-  // Simuliere Audio-Wiedergabe
-  useEffect(() => {
-    let interval: number;
-    if (isPlaying && currentTime < duration) {
-      interval = window.setInterval(() => {
-        setCurrentTime((prev) => {
-          if (prev >= duration) {
-            setIsPlaying(false);
-            return duration;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, currentTime, duration]);
 
   const togglePlayPause = async () => {
     const audio = audioRef.current;
@@ -89,7 +72,7 @@ export function MusicPlayer() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const progress = (currentTime / duration) * 100;
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="w-full max-w-md mx-auto px-8 py-10 bg-neutral-50 rounded-2xl shadow-sm border border-neutral-200">
@@ -164,7 +147,7 @@ export function MusicPlayer() {
             style={{
               background: `linear-gradient(to right, rgb(23 23 23) 0%, rgb(23 23 23) ${volume}%, rgb(229 229 229) ${volume}%, rgb(229 229 229) 100%)`,
             }}
-            aria-label="Lautstärke"
+            aria-label="Volume"
           />
         </div>
         <span className="text-sm text-neutral-600 font-mono w-8 text-right">
