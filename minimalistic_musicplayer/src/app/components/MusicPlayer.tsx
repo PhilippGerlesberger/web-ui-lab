@@ -142,7 +142,13 @@ export function MusicPlayer() {
             min="0"
             max="100"
             value={volume}
-            onChange={(e) => setVolume(Number(e.target.value))}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              setVolume(next);
+              if (audioRef.current) {
+                audioRef.current.volume = next / 100;
+              }
+            }}
             className="w-full h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neutral-900 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-neutral-900 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
             style={{
               background: `linear-gradient(to right, rgb(23 23 23) 0%, rgb(23 23 23) ${volume}%, rgb(229 229 229) ${volume}%, rgb(229 229 229) 100%)`,
