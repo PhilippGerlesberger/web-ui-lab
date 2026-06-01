@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Play, Pause, Volume2, SkipBack, SkipForward } from "lucide-react";
+import { Play, Pause, Volume2, VolumeOff, SkipBack, SkipForward } from "lucide-react";
 import { tracks } from "../data/tracks";
 
 export function MusicPlayer() {
@@ -7,6 +7,8 @@ export function MusicPlayer() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(70);
+  const [isMuted, setIsMuted] = useState(false);
+  const [lastVolume, setLastVolume] = useState(volume);
   const progressRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -74,6 +76,23 @@ export function MusicPlayer() {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  const toggleMute = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isMuted) {
+      const restoredVolume = lastVolume > 0 ? lastVolume : 70;
+      setIsMuted(false);
+      setVolume(restoredVolume);
+      audio.volume = restoredVolume / 100;
+    } else {
+      setLastVolume(volume);
+      setIsMuted(true);
+      setVolume(0);
+      audio.volume = 0;
+    }
+  };
+
   return (
     <div className="w-full max-w-md mx-auto px-8 py-10 bg-neutral-50 rounded-2xl shadow-sm border border-neutral-200">
       <div className="flex items-center justify-center gap-5 mb-8">
@@ -135,7 +154,18 @@ export function MusicPlayer() {
 
       {/* Volume Control */}
       <div className="flex items-center gap-3">
-        <Volume2 className="w-5 h-5 text-neutral-600 flex-shrink-0" />
+        <button
+          type="button"
+          onClick={toggleMute}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-200"
+          aria-label={isMuted ? "Unmute" : "Mute"}
+        >
+          {isMuted ? (
+            <VolumeOff className="w-5 h-5 text-neutral-600 flex-shrink-0" />
+          ) : (
+            <Volume2 className="w-5 h-5 text-neutral-600 flex-shrink-0" />
+          )}
+        </button>
         <div className="flex-1 relative">
           <input
             type="range"
@@ -145,6 +175,14 @@ export function MusicPlayer() {
             onChange={(e) => {
               const next = Number(e.target.value);
               setVolume(next);
+
+              if (next > 0) {
+                setLastVolume(next);
+                setIsMuted(false);
+              } else {
+                setIsMuted(true);
+              }
+
               if (audioRef.current) {
                 audioRef.current.volume = next / 100;
               }
