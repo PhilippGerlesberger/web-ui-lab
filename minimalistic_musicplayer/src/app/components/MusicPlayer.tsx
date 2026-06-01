@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2 } from "lucide-react";
+import { Play, Pause, Volume2, SkipBack, SkipForward } from "lucide-react";
 import { tracks } from "../data/tracks";
 
 export function MusicPlayer() {
@@ -64,9 +64,20 @@ export function MusicPlayer() {
 
   return (
     <div className="w-full max-w-md mx-auto px-8 py-10 bg-neutral-50 rounded-2xl shadow-sm border border-neutral-200">
-      {/* Play/Pause Button */}
-      <div className="flex justify-center mb-8">
+      <div className="flex items-center justify-center gap-5 mb-8">
         <button
+          type="button"
+          onClick={() =>
+            setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
+          }
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-200 text-neutral-700 transition-all hover:bg-neutral-300 active:scale-95"
+          aria-label="Previous track"
+        >
+          <SkipBack className="w-5 h-5" />
+        </button>
+
+        <button
+          type="button"
           onClick={togglePlayPause}
           className="w-16 h-16 flex items-center justify-center rounded-full bg-neutral-900 text-white transition-all hover:bg-neutral-800 hover:scale-105 active:scale-95"
           aria-label={isPlaying ? "Pause" : "Play"}
@@ -76,6 +87,15 @@ export function MusicPlayer() {
           ) : (
             <Play className="w-7 h-7 fill-white ml-1" />
           )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-200 text-neutral-700 transition-all hover:bg-neutral-300 active:scale-95"
+          aria-label="Next track"
+        >
+          <SkipForward className="w-5 h-5" />
         </button>
       </div>
 
