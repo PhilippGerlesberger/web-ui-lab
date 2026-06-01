@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { Play, Pause, Volume2 } from "lucide-react";
+import { tracks } from "../data/tracks";
 
 export function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(245); // 4:05 als Beispiel
+  const [duration, setDuration] = useState(0); // 4:05 als Beispiel
   const [volume, setVolume] = useState(70);
   const progressRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const currentTrack = tracks[currentTrackIndex];
 
   // Simuliere Audio-Wiedergabe
   useEffect(() => {
@@ -25,8 +29,20 @@ export function MusicPlayer() {
     return () => clearInterval(interval);
   }, [isPlaying, currentTime, duration]);
 
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+  const togglePlayPause = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      return;
+    }
+
+    try {
+      await audio.play();
+    } catch (error) {
+      console.error("Playback could not be started:", error);
+    }
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -108,6 +124,20 @@ export function MusicPlayer() {
           {volume}
         </span>
       </div>
+
+      <audio
+        ref={audioRef}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        src={currentTrack.src}
+        preload="metadata"
+        onLoadedMetadata={() => setDuration(Math.floor(audioRef.current?.duration ?? 0))}
+        onTimeUpdate={() => setCurrentTime(Math.floor(audioRef.current?.currentTime ?? 0))}
+        onEnded={() => {
+          setIsPlaying(false);
+          setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
+        }}
+      />
     </div>
   );
 }
